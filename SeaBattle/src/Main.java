@@ -1,9 +1,9 @@
-/**
- * Created by Bogachevy on 24.12.2017.
- */
 public class Main {
     /**
-     * точка входа программы, инициализация игры и запуск     *
+     * Главный класс - точка фхода программы
+     *
+     * @author Илья Богачев
+     * @since 14.01.2018
      */
     public static void main(String[] args) {
             Game.getInstance().init();
