@@ -1,12 +1,12 @@
 import java.util.Random;
 import java.util.Scanner;
 
-/**
- * Created by Bogachevy on 24.12.2017.
- */
 public class Game {
     /**
-     * Создается игра на двух игроков или игрок-комьютер
+     * Класс Игра
+     *
+     * @author Илья Богачев
+     * @since 14.01.2018
      */
     Player player1;
     Player computer;
@@ -19,6 +19,9 @@ public class Game {
     private Game() {
     }
 
+    /**
+     * создание игроков и игровых полей для них
+     */
     public void init() {
         player1 = new Player();
         player1.putShips();
@@ -28,6 +31,7 @@ public class Game {
     }
 
     public void start() {
+        player1.shootShips(computer.getComputerField());
         findWinner();
     }
 

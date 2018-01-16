@@ -1,14 +1,18 @@
-/**
- * Created by Bogachevy on 06.01.2018.
- */
 public class ShipCell {
     /**
-     * устанавливает координаты Х, Y и состояние палубы корабля
+     * Класс палуб (ячеек) корабля
+     *
+     * @author Илья Богачев
+     * @since 14.01.2018
      */
     private int coordinateX;
     private int coordinateY;
     private State state;
-    enum State{
+
+    /**
+     * Содержит перечисления возможных состояний ячеек корабля
+     */
+    enum State {
         INDEFINITELY, ALIVE, DEAD,
     }
 
@@ -36,7 +40,7 @@ public class ShipCell {
         this.state = state;
     }
 
-    public ShipCell(State state){
+    public ShipCell(State state) {
         this.state = state;
     }
 }

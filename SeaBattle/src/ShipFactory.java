@@ -1,14 +1,12 @@
 import java.util.Random;
 
-/**
- * Created by Bogachevy on 24.12.2017.
- */
 public class ShipFactory {
     /**
-     * Создает корабль в зависимости от типа корабля и генерирует начальные координаты X и Y, а также положение корабля
-     * по горизонтали или вертикали случайным образом в методе createShip(Ship.TypeOf)
+     * Класс фабрика кораблей
+     *
+     * @author Илья Богачев
+     * @since 14.01.2018
      */
-
     public Ship create1DeckShip() {
         return createShip(Ship.TypeOfShip.ONEDECK);
     }
@@ -29,16 +27,16 @@ public class ShipFactory {
     /**
      * создает корабли в завистимости от их типа, задает значение начальных координат и положение
      * однопалубные корабли инициализируются с одним постоянным положением
-     * @return  Ship ship
+     *
+     * @return Ship ship
      */
-
-    private Ship createShip (Ship.TypeOfShip typeOfShip){
+    private Ship createShip(Ship.TypeOfShip typeOfShip) {
         Ship ship = new Ship(typeOfShip);
         Random random = new Random();
         int coordinateX = random.nextInt(10);
         int coordinateY = random.nextInt(10);
         int position = random.nextInt(2);
-        if (!(typeOfShip== Ship.TypeOfShip.ONEDECK)) {
+        if (!(typeOfShip == Ship.TypeOfShip.ONEDECK)) {
             switch (position) {
                 case 0:
                     ship.setShipCellsCoordinate(coordinateX, coordinateY, Ship.ShipPosition.HORIZONTAL);
@@ -47,7 +45,7 @@ public class ShipFactory {
                     ship.setShipCellsCoordinate(coordinateX, coordinateY, Ship.ShipPosition.VERTICAL);
                     break;
             }
-        }else {
+        } else {
             ship.setShipCellsCoordinate(coordinateX, coordinateY, Ship.ShipPosition.HORIZONTAL);
         }
         return ship;
