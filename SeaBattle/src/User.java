@@ -49,7 +49,7 @@ public class User {
         }else {
             NavyFactory navyFactory = new NavyFactory();
             Field field = new Field(10, 10);
-            field.createBattleFild();
+            field.initBattleField();
             field.drawField();
             navyFactory.createNavy();
         }

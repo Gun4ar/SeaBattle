@@ -1,19 +1,22 @@
-import java.util.Map;
 
-/**
- * Created by Bogachevy on 24.12.2017.
- */
+import java.util.List;
+
+
 public class Field {
     /**
-     * При создании экземпляра класса создается игровое поля заданных размеров (двумерынй массив), на основе которого строится игровое поле
-     * в массиве хранятся значения ячеек поля, которые устанавливаются посредством метода
+     * Класс Игровое поле
+     *
+     * @author Илья Богачев
+     * @since 14.01.2018
      */
     private int numbVert;
     private int numbGoris;
 
-    //хранятся значения ячеек поля с кораблями и их состояние, а так же выстрелы игроков
+    /**
+     * хранятся значения ячеек поля с кораблями и их состояние, а так же выстрелы игроков
+     */
     enum FieldCells {
-        EMPTY, ALIVESHIP, DEADSHIP, MISSED
+        EMPTY, ALIVESHIP, DEADSHIP, MISSED,
     }
 
     public FieldCells[][] getBattleField() {
@@ -23,30 +26,32 @@ public class Field {
     /**
      * Принимает массив кораблей, для каждого коробля по координатом его палуб устанавливает значение поля ALIVESHIP
      */
-
-    public void setBattleField(Map<Integer, Ship> shipMap) {
+    public void setBattleField(List<Ship> shipsNavy) {
         try {
-            for (Map.Entry<Integer, Ship> entry : shipMap.entrySet()) {
-                for (int j = 0; j < entry.getValue().getShipCells().size(); j++) {
-                    battleField[entry.getValue().getShipCells().get(j).getCoordinateY()][entry.getValue().getShipCells().get(j).getCoordinateX()] = FieldCells.ALIVESHIP;
+            for (int i = 0; i < shipsNavy.size(); i++) {
+                for (int j = 0; j < shipsNavy.get(i).getShipCells().size(); j++) {
+                    battleField[shipsNavy.get(i).getShipCells().get(j).getCoordinateY()][shipsNavy.get(i).getShipCells().get(j).getCoordinateX()] = FieldCells.ALIVESHIP;
                 }
             }
-        }catch (ArrayIndexOutOfBoundsException e){
+        } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Не поместился корабль на поле!");
         }
     }
 
     private FieldCells[][] battleField;
 
-
+    /**
+     * При создании экземпляра класса создается игровое поля заданных размеров (двумерынй массив), на основе которого строится игровое поле
+     * в массиве хранятся значения ячеек поля, которые устанавливаются посредством метода
+     */
     public Field(int numbVert, int numbGoris) {
         battleField = new FieldCells[numbGoris][numbVert];
     }
 
     /**
-     * создает поле заполненное значением EMPTY     *
+     * создает поле заполненное значением EMPTY
      */
-    public FieldCells[][] createBattleFild() {
+    public FieldCells[][] initBattleField() {
         for (int i = 0; i < battleField.length; i++) {
             for (int j = 0; j < battleField.length; j++) {
                 battleField[i][j] = FieldCells.EMPTY;
@@ -57,56 +62,79 @@ public class Field {
 
     /**
      * Осуществляет проверку положения корабля
+     *
      * @param ship передает число палуб корабля и положение на поле
-     * @param field необходимо для задания граничных условий размещения корабля
      * @return
      */
+    public boolean checkShip(Ship ship) {
+        /**
+         * проверяем что в данной ячейки нет корабля
+         * l -координата Y, m - X
+         * перебираем в цикле все ячейки вокруг выбранной ячейки корабля         
+         */
 
-    public boolean checkShip(Ship ship, Field field) {
-            switch (ship.getShipPosition()) {
-                case HORIZONTAL:
-                    for (int i = 0; i < ship.getShipCells().size(); i++) {
-                        if ((ship.getShipCells().get(i).getCoordinateX()) < ((field.getBattleField().length - (ship.getShipCells().size()) + 1) + i)) {
-                            return true;
-                        } else return false;
-                    }
-                    break;
-                case VERTICAL:
-                    for (int i = 0; i < ship.getShipCells().size(); i++) {
-                        if ((ship.getShipCells().get(i).getCoordinateY()) < ((field.getBattleField().length - (ship.getShipCells().size()) + 1) + i)) {
-                            return true;
-                        } else return false;
-                    }
-                    break;
-            }
+        for (int i = 0; i < ship.getShipCells().size(); i++) {
+            if (isOnField(ship.getShipCells().get(i))) {
+                if (getBattleField()[ship.getShipCells().get(i).getCoordinateY()][ship.getShipCells().get(i).getCoordinateX()] == FieldCells.EMPTY) {
+                   if (isNearShips(ship.getShipCells().get(i))){
+                       return false;
 
+                   }
+                }
+            }else return false;
+        }
+        return true;
+    }
+
+    /**
+     * проверка нахождения ячейки корабля на игровом поле
+     */
+    private boolean isOnField(ShipCell shipCell) {
+        if (shipCell.getCoordinateX() < (getBattleField().length - 1) && shipCell.getCoordinateY() < (getBattleField().length - 1)) {
+            return true;
+        }
         return false;
     }
 
-    //метод стрельбы по кораблю
-    public void shootShips() {
-        for (int i = 0; i < battleField.length; i++) {
-            for (int j = 0; j < battleField.length; j++) {
-                while (battleField[i][j] == FieldCells.ALIVESHIP) switch (battleField[i][j]) {
-                    case EMPTY:
-                        battleField[i][j] = FieldCells.MISSED;
-                        break;
-                    case MISSED:
-                        battleField[i][j] = FieldCells.MISSED;
-                        break;
-                    case ALIVESHIP:
-                        battleField[i][j] = FieldCells.DEADSHIP;
-                        break;
+    /**проверка близости других кораблей вокруг указанной ячейки корабля, если есть, вернет true
+     * переменные Ymin, Ymax, Xmin, Xmax - задают область вокруг ячейки кораблся, при этом, если
+     * область выходит за пределы игрового поля, то начальные и конечные значения уменьшаются
+     *
+     * @param shipCell -ячейка корабля
+     * @return boolean
+     */
+    private boolean isNearShips(ShipCell shipCell){
+        int Ymin = shipCell.getCoordinateY() - 1;
+        int Ymax = shipCell.getCoordinateY() + 1;
+        int Xmin = shipCell.getCoordinateX() - 1;
+        int Xmax = shipCell.getCoordinateX() + 1;
+        if (Ymin<0){
+            Ymin=0;
+        }
+        if (Xmin<0){
+            Xmin =0;
+        }
+        if (Ymax>(getBattleField().length-1)){
+            Ymax=(getBattleField().length-1);
+        }
+        if (Xmax>(getBattleField().length-1)){
+            Xmax=(getBattleField().length-1);
+        }
+        for (int i = Ymin; i <Ymax ; i++) {
+            for (int j = Xmin; j < Xmax; j++) {
+                if (getBattleField()[shipCell.getCoordinateY()][shipCell.getCoordinateX()] ==(FieldCells.ALIVESHIP)){
+                    return true;
                 }
             }
+
         }
-        drawField();
+        return false;
     }
+
 
     /**
      * выводит игровое поле в зависимости от переданных параметров enum FieldCells
      */
-
     public void drawField() {
         char letter = 'A';
         for (int j = 0; j < battleField.length; j++) {
