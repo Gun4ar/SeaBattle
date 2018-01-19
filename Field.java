@@ -73,12 +73,11 @@ public class Field {
      * @return
      */
     public boolean checkShip(Ship ship) {
-        /**
-         * проверяем что в данной ячейки нет корабля
-         * l -координата Y, m - X
-         * перебираем в цикле все ячейки вокруг выбранной ячейки корабля
+         /**
+         * проверяем, что корабль не выходит за границы поля в методе isOnField()
+         * проверяем, что в данном месте поля нет корабля
+         * перебираем в цикле все ячейки вокруг выбранной ячейки корабля в методе isNearShips()
          */
-
             for (int i = 0; i < ship.getShipCells().size(); i++) {
                 if (isOnField(ship.getShipCells().get(i))) {
                     if (battleField[ship.getShipCells().get(i).getCoordinateY()][ship.getShipCells().get(i).getCoordinateX()] == FieldCells.EMPTY) {
