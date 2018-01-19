@@ -83,12 +83,9 @@ public class Field {
                     if (battleField[ship.getShipCells().get(i).getCoordinateY()][ship.getShipCells().get(i).getCoordinateX()] == FieldCells.EMPTY) {
                         if (isNearShips(ship.getShipCells().get(i))) {
                             return false;
-
                         }
                     }
                 } else return false;
-
-
         } return true;
     }
 
@@ -130,9 +127,9 @@ public class Field {
         if (Xmax>(battleField.length-1)){
             Xmax=(battleField.length-1);
         }
-        for (int i = Ymin; i <Ymax ; i++) {
-            for (int j = Xmin; j < Xmax; j++) {
-                if (battleField[shipCell.getCoordinateY()][shipCell.getCoordinateX()] ==(FieldCells.ALIVESHIP)){
+        for (int i = Ymin; i <=Ymax ; i++) {
+            for (int j = Xmin; j <= Xmax; j++) {
+                if (battleField[i][j] ==(FieldCells.ALIVESHIP)){
                     return true;
                 }
             }
