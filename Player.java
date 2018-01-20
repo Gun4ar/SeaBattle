@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -17,6 +15,7 @@ public class Player {
     }
 
 
+    private Field playerField;
     private Field enemyField;
 
     /**
@@ -64,10 +63,10 @@ public class Player {
      */
     public void putShips() {
         NavyFactory navyFactory = new NavyFactory();
-        List<Ship> navy = navyFactory.createNavy();
-        Field myField = navyFactory.getField();
-        myField.setBattleField(navy);
-        myField.drawField();
+        playerField = new Field(10, 10);
+        playerField.initBattleField();
+        playerField.setBattleField(navyFactory.createNavy());
+        playerField.drawField();
     }
 
     public void computerPutShips() {
@@ -101,4 +100,3 @@ public class Player {
         field.drawField();
     }
 }
-
