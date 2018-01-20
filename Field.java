@@ -84,7 +84,7 @@ public class Field {
                         if (isNearShips(ship.getShipCells().get(i))) {
                             return false;
                         }
-                    }
+                    }else return false;
                 } else return false;
         } return true;
     }
@@ -95,7 +95,7 @@ public class Field {
      */
     private boolean isOnField(ShipCell shipCell) {
         if (shipCell.getCoordinateX() <= (battleField.length - 1) && shipCell.getCoordinateY() <= (battleField.length - 1)) {
-            if (shipCell.getCoordinateX()>=0&&shipCell.getCoordinateY()>=0){
+            if (shipCell.getCoordinateX()>=0 && shipCell.getCoordinateY()>=0){
                 return true;
             }
 
@@ -133,7 +133,6 @@ public class Field {
                     return true;
                 }
             }
-
         }
         return false;
     }
