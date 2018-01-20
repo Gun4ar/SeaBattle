@@ -49,7 +49,7 @@ public class NavyFactory {
                     ships.add(ship);
                     field.setOneShip(ship);
                     break;
-                }
+                }else countOfTries++;
             }
         }
         for (int i = 0; i < Ship.TypeOfShip.THREEDECKS.countShips; i++) {
@@ -58,7 +58,7 @@ public class NavyFactory {
                     ships.add(ship);
                     field.setOneShip(ship);
                     break;
-                }
+                }else countOfTries++;
             }
         }
         for (int i = 0; i < Ship.TypeOfShip.TWODECKS.countShips; i++) {
@@ -67,7 +67,7 @@ public class NavyFactory {
                     ships.add(ship);
                     field.setOneShip(ship);
                     break;
-                }
+                }else countOfTries++;
             }
         }
         for (int i = 0; i < Ship.TypeOfShip.ONEDECK.countShips; i++) {
@@ -76,7 +76,7 @@ public class NavyFactory {
                     ships.add(ship);
                     field.setOneShip(ship);
                     break;
-                }
+                }else countOfTries++;
             }
         }
         System.out.println("Ships are created!");
