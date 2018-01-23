@@ -4,7 +4,7 @@ import java.util.List;
  * Класс Игровое поле
  *
  * @author Илья Богачев
- * @since 22.01.2018
+ * @since 23.01.2018
  */
 public class Field {
 
@@ -180,39 +180,6 @@ public class Field {
 
         }
         return false;
-    }
-
-
-    /**
-     * выводит игровое поле в зависимости от переданных параметров enum FieldCells
-     */
-    public void drawField() {
-        char letter = 'A';
-        for (int j = 0; j < battleField.length; j++) {
-            System.out.printf("%3d", j + 1);
-        }
-        System.out.println();
-        for (int i = 0; i < battleField.length; i++) {
-            System.out.print(letter++);
-            for (int j = 0; j < battleField.length; j++) {
-                switch (battleField[i][j]) {
-                    case EMPTY:
-                        System.out.print(" | ");
-                        break;
-                    case ALIVESHIP:
-                        System.out.print(" # ");
-                        break;
-                    case DEADSHIP:
-                        System.out.print(" X ");
-                        break;
-                    case MISSED:
-                        System.out.print(" * ");
-                        break;
-                }
-            }
-            System.out.println();
-        }
-        System.out.println();
     }
 
 }
