@@ -5,10 +5,10 @@ import java.util.Random;
  * Класс Игрок
  *
  * @author Илья Богачев
- * @since 22.01.2018
+ * @since 23.01.2018
  */
 public class Player implements ShootingShips {
-
+    Show show;
     private String name;
 
     public Field getPlayerField() {//временно для теста
@@ -49,12 +49,13 @@ public class Player implements ShootingShips {
      * создает новое игровое поля, и поле проверки для игрока, создает флот и размещает его на игровом поле, и выводит его на экран
      */
     public void putShips() {
+        show = new Show();
         NavyFactory navyFactory = new NavyFactory();
         playerNavy = navyFactory.createNavy();
         playerField = new Field(10, 10);
         playerField.initBattleField();
         playerField.setBattleField(playerNavy);
-        playerField.drawField();
+        show.drawField(playerField);
         playerCheckField = new Field(10, 10);
         playerCheckField.initBattleField();
     }
@@ -149,6 +150,9 @@ public class Player implements ShootingShips {
         return true;
     }
 
+    /**
+     * отмечаем потопленный корабль на проверочном поле
+     */
     public void playerHit(int[] playerShoots) {
         playerCheckField.getBattleField()[playerShoots[1]][playerShoots[0]] = Field.FieldCells.DEADSHIP;
     }
