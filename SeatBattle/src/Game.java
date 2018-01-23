@@ -2,7 +2,7 @@
  * Класс Игра
  *
  * @author Илья Богачев
- * @since 22.01.2018
+ * @since 23.01.2018
  */
 public class Game {
     Show show;
@@ -76,52 +76,60 @@ public class Game {
              * если координаты выстрела совпадают с координатами корабля игрока, то метод вернет true и отметит на поле игрока эту ячейку как потопленную палубу
              * если комьютер промахнулся то венет false и отметит ячейку MISSED
              */
+            while (true) {
+                if (player1.checkShootCoordinate(computerShoots = computer.shootShips())) {//для теста координаты генерируются автоматически
+                    /**отмечаем на проверочном поле попадание в корабль противника*/
+                    computer.computerHit(computerShoots);
+                    /**находим пораженный корабль флота игрока, и ячейку по переданным координатам, и присваиваем палубе сосотояние DEAD*/
+                    player1.killShips(computerShoots);
+                    System.out.println("After Computer shoot Ship: Y " + computerShoots[1] + " X " + computerShoots[0]);
+                    show.drawField(player1.getPlayerField());
+                    /**проверяем состояние флота игрока после попадания*/
+                    System.out.println("Player's Navy: ");
+                    for (int i = 0; i < player1.getPlayerNavy().size(); i++) {
+                        for (int j = 0; j < player1.getPlayerNavy().get(i).getShipCells().size(); j++) {
+                            System.out.print(player1.getPlayerNavy().get(i).getShipCells().get(j).getState() + " ");
+                        }
 
-            if (player1.checkShootCoordinate(computerShoots = computer.shootShips())) {//для теста координаты генерируются автоматически
-                /**отмечаем на проверочном поле попадание в корабль противника*/
-                computer.computerHit(computerShoots);
-                /**находим пораженный корабль флота игрока, и ячейку по переданным координатам, и присваиваем палубе сосотояние DEAD*/
-                player1.killShips(computerShoots);
-                System.out.println("After Computer shoot Ship: Y " + computerShoots[1] +" X "+ computerShoots[0]);
-                player1.getPlayerField().drawField();
-                /**проверяем состояние флота игрока после попадания*/
-                System.out.println("Player's Navy: ");
-                for (int i = 0; i < player1.getPlayerNavy().size(); i++) {
-                    for (int j = 0; j < player1.getPlayerNavy().get(i).getShipCells().size(); j++) {
-                        System.out.print(player1.getPlayerNavy().get(i).getShipCells().get(j).getState() + " ");
                     }
+                    continue;
 
+                } else {
+                    computer.missed(computerShoots);
+                    System.out.println("Computer Missed");
+                    show.drawField(computer.getComputerField());
+                    show.drawField(player1.getPlayerField());
+                    break;
                 }
-
-            } else {
-                computer.missed(computerShoots);
-                System.out.println("Computer Missed");
-                computer.getComputerCheckField().drawField();
-                player1.getPlayerField().drawField();
             }
+            while (true) {
+
+
                 /**для теста, координаты выстрела игрока будут генерироваться случайно*/
-                if (computer.checkShootCoordinate(playerShoots = player1.shootShips())){
+                if (computer.checkShootCoordinate(playerShoots = player1.shootShips())) {
                     player1.playerHit(playerShoots);
                     computer.killShips(playerShoots);
                     System.out.println("After Player Shot Ship: Y " + playerShoots[1] + " X " + playerShoots[0]);
-                    computer.getComputerField().drawField();
+                    show.drawField(computer.getComputerField());
                     /**проверяем состояние флота комьюетра после попадания*/
                     System.out.println("Computer's Navy: ");
                     for (int i = 0; i < computer.getComputerNavy().size(); i++) {
                         for (int j = 0; j < computer.getComputerNavy().get(i).getShipCells().size(); j++) {
                             System.out.print(computer.getComputerNavy().get(i).getShipCells().get(j).getState() + " ");
                         }
-
                     }
+                    continue;
 
-                }else {
+
+                } else {
                     player1.missed(playerShoots);
                     System.out.println("Player Missed");
-                    computer.getComputerField().drawField();
-                    player1.getPlayerCheckField().drawField();
-                    continue;
+                    show.drawField(computer.getComputerField());
+                    show.drawField(player1.getPlayerCheckField());
+                    break;
                 }
             }
+        }
 
     }
 
@@ -145,6 +153,3 @@ public class Game {
         return false;
     }
 }
-
-
-
