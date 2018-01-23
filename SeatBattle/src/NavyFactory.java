@@ -4,9 +4,10 @@ import java.util.List;
  * Класс фабрика по созданию флота кораблей
  *
  * @author Илья Богачев
- * @since 20.01.2018
+ * @since 22.01.2018
  */
 public class NavyFactory {
+    Show show;
 
     public List<Ship> getShips() {
         return ships;
@@ -35,6 +36,7 @@ public class NavyFactory {
      * @return ArrayList <Ship> ships
      */
     public List<Ship> createNavy() {
+        show = new Show();
         Ship ship;
         int countOfTries = 0;
         final int MAX_COUNT_OF_TRIES = 10_000;
@@ -79,7 +81,7 @@ public class NavyFactory {
                 }else countOfTries++;
             }
         }
-        System.out.println("Ships are created!");
+        show.createdShips();
         return ships;
     }
 }
