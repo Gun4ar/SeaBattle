@@ -4,12 +4,12 @@ import java.util.Scanner;
  * Класс отображение
  *
  * @author Илья Богачев
- * @since 22.01.2018
+ * @since 23.01.2018
  */
 public class Show {
     Computer computer;
     Player player;
-
+    Field field;
 
     /**
      * метод спрашивает имя пользователя, и выводит его в качестве имени нового игрока
@@ -61,5 +61,46 @@ public class Show {
      */
     public void showWinner(ShootingShips shootingShips) {
         System.out.println(shootingShips.getName() + " WINNER!!!");
+    }
+
+    /**
+     * выводит игровое поле в зависимости от переданных параметров enum FieldCells
+     *
+     * @param field
+     */
+    public void drawField(Field field) {
+        char letter = 'A';
+        for (int j = 0; j < field.getBattleField().length; j++) {
+            System.out.printf("%3d", j + 1);
+        }
+        System.out.println();
+        for (int i = 0; i < field.getBattleField().length; i++) {
+            System.out.print(letter++);
+            for (int j = 0; j < field.getBattleField().length; j++) {
+                switch (field.getBattleField()[i][j]) {
+                    case EMPTY:
+                        System.out.print(" | ");
+                        break;
+                    case ALIVESHIP:
+                        System.out.print(" # ");
+                        break;
+                    case DEADSHIP:
+                        System.out.print(" X ");
+                        break;
+                    case MISSED:
+                        System.out.print(" * ");
+                        break;
+                }
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
+    /**
+     * выводит сообщение о создании флота кораблей
+     */
+    public void createdShips() {
+        System.out.println("Ships are created!");
     }
 }
