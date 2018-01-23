@@ -5,7 +5,7 @@ import java.util.Random;
  * Класс Комьютер
  *
  * @author Илья Богачев
- * @since 22.01.2018
+ * @since 23.01.2018
  */
 public class Computer implements ShootingShips {
     /**
@@ -61,7 +61,6 @@ public class Computer implements ShootingShips {
      *
      * @return shoots - массив с двумя значениями координат X и Y
      */
-
     public int[] createShootCoordinate() {
         int[] shoots = new int[2];
         Random random = new Random();
@@ -123,6 +122,7 @@ public class Computer implements ShootingShips {
         computerCheckField.getBattleField()[computerShoots[1]][computerShoots[0]] = Field.FieldCells.DEADSHIP;
     }
 
+    /**проверяем координаты выстрела противника, возвращаем true если противник попал по кораблю*/
     public boolean checkShootCoordinate(int[] shootCoordinate) {
         switch (computerField.getBattleField()[shootCoordinate[1]][shootCoordinate[0]]) {
             case ALIVESHIP:
@@ -139,13 +139,13 @@ public class Computer implements ShootingShips {
         }
         return false;
     }
-
+    /**отмечаем корабль в который попал противнки*/
     public void killShips(int[] playerShoots) {
         /**ищем корабль в который попал противник и присваиваем ячейки корабля значение DEAD*/
         for (int i = 0; i < computerNavy.size(); i++) {//пробегаем по массиву кораблей
             for (int j = 0; j < computerNavy.get(i).getShipCells().size(); j++) { //пробегаем по массиву палуб конкретноего корабля
                 /**находим ячейку корабля по указанным координатам*/
-                if (computerNavy.get(i).getShipCells().get(j).getCoordinateY() == playerShoots [1] && computerNavy.get(i).getShipCells().get(j).getCoordinateX() == playerShoots[0]) {
+                if (computerNavy.get(i).getShipCells().get(j).getCoordinateY() == playerShoots[1] && computerNavy.get(i).getShipCells().get(j).getCoordinateX() == playerShoots[0]) {
                     /**устанавливаем значение этой ячейки DEAD*/
                     computerNavy.get(i).getShipCells().get(j).setState(ShipCell.State.DEAD);
                     break;
