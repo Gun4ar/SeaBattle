@@ -4,33 +4,9 @@ import java.util.List;
  * Класс Игровое поле
  *
  * @author Илья Богачев
- * @since 23.01.2018
+ * @since 28.01.2018
  */
 public class Field {
-
-    private int numbVert;
-    private int numbGoris;
-
-    /**
-     * метод проверки координта выстрела на поле противника, вернет true , если только переданные координаты попали по кораблю
-     */
-    public boolean checkShootCoordinate(int[] shootCoordinate) {
-        switch (battleField[shootCoordinate[1]][shootCoordinate[0]]) {
-            case ALIVESHIP:
-                battleField[shootCoordinate[1]][shootCoordinate[0]] = FieldCells.DEADSHIP;
-                return true;
-            case EMPTY:
-                battleField[shootCoordinate[1]][shootCoordinate[0]] = FieldCells.MISSED;
-                return false;
-            case DEADSHIP:
-                return false;
-            case MISSED:
-                return false;
-
-        }
-        return false;
-    }
-
     /**
      * проверка случайно созданных координат выстрела
      * если комьюетер уже создавал такую пару X и Y, то вернет false, иначе true (комьютер не помечает корабль как ALIVESHIP, если был успешный выстрел, но помечает как DEADSHIP)
@@ -38,8 +14,8 @@ public class Field {
      * @param shoots
      * @return false
      */
-    public boolean checkRandomShoots(int[] shoots) {
-        switch (battleField[shoots[1]][shoots[0]]) {
+    public boolean checkRandomShoots(Point shoots) {
+        switch (battleField[shoots.getY()][shoots.getX()]){
             case MISSED:
                 return false;
             case DEADSHIP:
@@ -51,7 +27,6 @@ public class Field {
         return false;
 
     }
-
 
     /**
      * хранятся значения ячеек поля с кораблями и их состояние, а так же выстрелы игроков
@@ -132,7 +107,6 @@ public class Field {
         return true;
     }
 
-
     /**
      * проверка нахождения ячейки корабля на игровом поле
      */
@@ -181,5 +155,4 @@ public class Field {
         }
         return false;
     }
-
 }

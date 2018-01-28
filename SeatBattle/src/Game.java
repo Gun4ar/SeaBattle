@@ -2,18 +2,22 @@
  * Класс Игра
  *
  * @author Илья Богачев
- * @since 23.01.2018
+ * @since 28.01.2018
  */
 public class Game {
-    Show show;
+    ConsoleShow consoleShow;
     Player player1;
     Player player2;
     Computer computer;
-    private int gameMode;
+    private gameMode mode;
     private static Game ourInstance = new Game();
 
     public static Game getInstance() {
         return ourInstance;
+    }
+
+    enum gameMode {
+        PlayerVsComputer, PlayerVsPlayer,
     }
 
     private Game() {
@@ -23,25 +27,24 @@ public class Game {
      * создание игроков и игровых полей для них
      */
     public void init() {
-        gameMode = 0;
-        show = new Show();
+        consoleShow = new ConsoleShow();
         /**режим игрок против комьютера*/
-        if (show.chooseGameMode() == 1) {
+        if (consoleShow.chooseGameMode() == 1) {
             player1 = new Player();
-            show.askUserName(player1);
+            player1.setName(consoleShow.askUserName());
             player1.putShips();
             computer = new Computer();
-            computer.computerPutShips();
-            gameMode = 1;
+            computer.putShips();
+            mode = Game.gameMode.PlayerVsComputer;
         } else {
             /**режим игрок против игрока*/
             player1 = new Player();
-            show.askUserName(player1);
+            player1.setName(consoleShow.askUserName());
             player1.putShips();
             player2 = new Player();
-            show.askUserName(player2);
+            player2.setName(consoleShow.askUserName());
             player2.putShips();
-            gameMode = 2;
+            mode = Game.gameMode.PlayerVsPlayer;
         }
     }
 
@@ -49,17 +52,18 @@ public class Game {
      * запускаем нужный режим игры в зависимости от выбранного игрок параметра
      */
     public void start() {
-        if (gameMode == 1) {
-            gameModeComputer();
-        } else {
-            if (gameMode == 2) {
+        switch (mode) {
+            case PlayerVsPlayer:
                 gameModePlayerVsPlayer();
-            }
+                break;
+            case PlayerVsComputer:
+                gameModeComputer();
+                break;
         }
     }
 
     /**
-     * метод игры против другого человека(не раелизован)
+     * метод игры против другого человека(не реализован)
      */
     private void gameModePlayerVsPlayer() {
         System.out.println("Player VS Player Mode");
@@ -69,84 +73,35 @@ public class Game {
      * метод игры против комьютера
      */
     private void gameModeComputer() {
-        int computerShoots[];
-        int playerShoots[];
         while (!(findWinner())) {
-            /**
-             * если координаты выстрела совпадают с координатами корабля игрока, то метод вернет true и отметит на поле игрока эту ячейку как потопленную палубу
-             * если комьютер промахнулся то венет false и отметит ячейку MISSED
-             */
+            /**стрельба продолжается до тех пор, пока метод fight не вернет false, иными словами, пока комьюетер не промахнется*/
             while (true) {
-                if (player1.checkShootCoordinate(computerShoots = computer.shootShips())) {//для теста координаты генерируются автоматически
-                    /**отмечаем на проверочном поле попадание в корабль противника*/
-                    computer.computerHit(computerShoots);
-                    /**находим пораженный корабль флота игрока, и ячейку по переданным координатам, и присваиваем палубе сосотояние DEAD*/
-                    player1.killShips(computerShoots);
-                    System.out.println("After Computer shoot Ship: Y " + computerShoots[1] + " X " + computerShoots[0]);
-                    show.drawField(player1.getPlayerField());
-                    /**проверяем состояние флота игрока после попадания*/
-                    System.out.println("Player's Navy: ");
-                    for (int i = 0; i < player1.getPlayerNavy().size(); i++) {
-                        for (int j = 0; j < player1.getPlayerNavy().get(i).getShipCells().size(); j++) {
-                            System.out.print(player1.getPlayerNavy().get(i).getShipCells().get(j).getState() + " ");
-                        }
-
-                    }
-                    continue;
-
+                if (computer.fight()) {
                 } else {
-                    computer.missed(computerShoots);
-                    System.out.println("Computer Missed");
-                    show.drawField(computer.getComputerField());
-                    show.drawField(player1.getPlayerField());
                     break;
                 }
             }
             while (true) {
-
-
-                /**для теста, координаты выстрела игрока будут генерироваться случайно*/
-                if (computer.checkShootCoordinate(playerShoots = player1.shootShips())) {
-                    player1.playerHit(playerShoots);
-                    computer.killShips(playerShoots);
-                    System.out.println("After Player Shot Ship: Y " + playerShoots[1] + " X " + playerShoots[0]);
-                    show.drawField(computer.getComputerField());
-                    /**проверяем состояние флота комьюетра после попадания*/
-                    System.out.println("Computer's Navy: ");
-                    for (int i = 0; i < computer.getComputerNavy().size(); i++) {
-                        for (int j = 0; j < computer.getComputerNavy().get(i).getShipCells().size(); j++) {
-                            System.out.print(computer.getComputerNavy().get(i).getShipCells().get(j).getState() + " ");
-                        }
-                    }
-                    continue;
-
-
+                if (player1.fight()) {
                 } else {
-                    player1.missed(playerShoots);
-                    System.out.println("Player Missed");
-                    show.drawField(computer.getComputerField());
-                    show.drawField(player1.getPlayerCheckField());
                     break;
                 }
             }
         }
-
     }
 
     /**
      * побеждает тот, кто первым потопил все корабли противника
      */
     public boolean findWinner() {
-        ShootingShips shootingShips = player1;
-        ShootingShips shootingShips1 = computer;
-        show = new Show();
+        consoleShow = new ConsoleShow();
         /**если игрок потерял весь флот, то победил комьютер, иначе игрок*/
         if (player1.isLooseNavy()) {
-            show.showWinner(computer);
+            consoleShow.showWinner(computer);
             return true;
         } else {
             if (computer.isLooseNavy()) {
-                show.showWinner(player1);
+                consoleShow.showWinner(player1);
                 return true;
             }
         }

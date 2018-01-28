@@ -3,12 +3,14 @@ import java.util.ArrayList;
  * Класс корабль
  *
  * @author Илья Богачев
- * @since 22.01.2018
+ * @since 28.01.2018
  * Класс имеет четыре типа кораблей, каждый из которых конструируется в зависимости от переданного типа
  * каждый корабль создает свой уникальный набор ShipCell и добавляет их в ArrayList shipCells
  * метод setShipCellsCoordinate устанавливает корабль (т.е. каждую его палубу, начиная с первой) в зависимости от его расположения (передается как параметр)
  */
 public class Ship {
+
+    private Ship.ShipState shipState;
 
     private Ship.TypeOfShip typeOfShip;
 
@@ -19,6 +21,13 @@ public class Ship {
     public void setShipPosition(ShipPosition shipPosition) {
         this.shipPosition = shipPosition;
     }
+    public ShipState getShipState() {
+        return shipState;
+    }
+
+    public void setShipState(ShipState shipState) {
+        this.shipState = shipState;
+    }
 
     private ShipPosition shipPosition;
 
@@ -27,6 +36,11 @@ public class Ship {
      */
     enum ShipPosition {
         HORIZONTAL, VERTICAL
+    }
+
+    /**состояние корабля, необходимо для определения ранен ли или убит*/
+    enum ShipState{
+        WOUNDED, DEAD, ALIVE
     }
 
     public ArrayList<ShipCell> getShipCells() {
@@ -51,12 +65,13 @@ public class Ship {
     }
 
     /**
-     * конструктор создает палубы корабля
+     * конструктор создает палубы корабля и устанавливает его состояние как ALIVE
      *
      * @param typeOfShip определяет количество ячеек корабля
      */
     public Ship(TypeOfShip typeOfShip) {//при конструировании корабля в зависимости от типа корабля создаются палубы и устанавливается их начальное состояние
         this.typeOfShip = typeOfShip;
+        this.shipState = ShipState.ALIVE;
         ShipPosition position;
         for (int i = 0; i < typeOfShip.ordinal() + 1; i++) {
             ShipCell shipCell = new ShipCell(ShipCell.State.ALIVE);

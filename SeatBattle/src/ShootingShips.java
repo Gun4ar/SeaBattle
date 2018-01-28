@@ -6,10 +6,11 @@
  */
 public interface ShootingShips {
     /**метод стрельбы по кораблям*/
-    int[] shootShips();
+    Point shootShips();
 
     /**передаем имя игрока*/
     String getName();
+
     /**устанавливаем имя игрока*/
     void setName(String name);
 

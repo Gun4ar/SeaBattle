@@ -1,106 +1,20 @@
-import java.util.Scanner;
-
 /**
- * Класс отображение
+ * Интерфейс выводящий информацию на экран
  *
  * @author Илья Богачев
- * @since 23.01.2018
+ * @since 28.01.2018
  */
-public class Show {
-    Computer computer;
-    Player player;
-    Field field;
+public interface Show  {
+    /**запросить имя игрока*/
+    String askUserName();
+    /**выбрать режим игры*/
+    int chooseGameMode();
+    /**вывести победителя*/
+    void showWinner(ShootingShips shootingShips);
+    /**показать игровое поле*/
+    void drawField(Field field);
+    /**информация о создании флота*/
+    void createdShips();
 
-    /**
-     * метод спрашивает имя пользователя, и выводит его в качестве имени нового игрока
-     *
-     * @return name
-     */
-    public void askUserName(ShootingShips shootingShips) {
-        shootingShips = new Player();
-        String name = "";
-        System.out.println("Hello, my dear friend!");
-        System.out.println("Please, introduce yourself:");
-        Scanner scanner = new Scanner(System.in);
-        try {
-            name = scanner.nextLine();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        System.out.println("Our new Player's name is: " + name);
-        System.out.println();
-        shootingShips.setName(name);
-    }
 
-    /**
-     * метод для определения режима игры- игрок -комьютер или игрок-игрок
-     */
-    public int chooseGameMode() {
-        int number;
-        System.out.println("Choose game mode: enter 1 to play with computer; enter 2 to play with Player");
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-            if (scanner.hasNextInt()) {
-                number = scanner.nextInt();
-                if (number < 1 || number > 2) {
-                    System.out.println("Please enter number 1 or 2");
-                    continue;
-                } else {
-                    break;
-                }
-
-            }
-            String temp = scanner.nextLine();
-            System.out.println("Please enter number 1 or 2");
-        }
-        return number;
-    }
-
-    /**
-     * выводим сообщение о победе игрока или комьютера
-     */
-    public void showWinner(ShootingShips shootingShips) {
-        System.out.println(shootingShips.getName() + " WINNER!!!");
-    }
-
-    /**
-     * выводит игровое поле в зависимости от переданных параметров enum FieldCells
-     *
-     * @param field
-     */
-    public void drawField(Field field) {
-        char letter = 'A';
-        for (int j = 0; j < field.getBattleField().length; j++) {
-            System.out.printf("%3d", j + 1);
-        }
-        System.out.println();
-        for (int i = 0; i < field.getBattleField().length; i++) {
-            System.out.print(letter++);
-            for (int j = 0; j < field.getBattleField().length; j++) {
-                switch (field.getBattleField()[i][j]) {
-                    case EMPTY:
-                        System.out.print(" | ");
-                        break;
-                    case ALIVESHIP:
-                        System.out.print(" # ");
-                        break;
-                    case DEADSHIP:
-                        System.out.print(" X ");
-                        break;
-                    case MISSED:
-                        System.out.print(" * ");
-                        break;
-                }
-            }
-            System.out.println();
-        }
-        System.out.println();
-    }
-
-    /**
-     * выводит сообщение о создании флота кораблей
-     */
-    public void createdShips() {
-        System.out.println("Ships are created!");
-    }
 }
