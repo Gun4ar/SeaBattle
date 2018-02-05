@@ -4,10 +4,10 @@ import java.util.List;
  * Класс Комьютер
  *
  * @author Илья Богачев
- * @since 28.01.2018
+ * @since 05.02.2018
  */
-public class Computer extends Player implements ShootingShips, Strategy {
-    Player player = new Player();
+public class Computer extends Player implements ShootingShips {
+    Player player;
 
     private int countTry;
 
@@ -289,7 +289,7 @@ public class Computer extends Player implements ShootingShips, Strategy {
                 countTry = 0;
             }
         } else {
-            /**если conutTry ==0, то запускаем стратегию поиска корабля противника*/
+            /**если countTry ==0, то запускаем стратегию поиска корабля противника*/
             if (findShip()) {
                 /**проверем, если жив корабль, то запускаем стратегию добивания корабля, если нет, то запускаем метод поиска нового корабля*/
                 if (player.isShipAlive(computerShoots)) {
