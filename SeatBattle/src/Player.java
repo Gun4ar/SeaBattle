@@ -5,11 +5,11 @@ import java.util.Random;
  * Класс Игрок
  *
  * @author Илья Богачев
- * @since 28.01.2018
+ * @since 05.02.2018
  */
-public class Player implements ShootingShips, Strategy {
+public class Player extends Strategy implements ShootingShips {
     ConsoleShow consoleShow;
-
+    Strategy strategy;
     private String name;
     public boolean isShipAlive;
 
@@ -181,7 +181,7 @@ public class Player implements ShootingShips, Strategy {
     }
     /**метод сражения игрока, реализуется через GUI*/
     public boolean fight(){
-        return true;
+        return false;
     }
 
 }
