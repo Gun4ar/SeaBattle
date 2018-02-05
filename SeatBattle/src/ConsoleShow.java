@@ -6,17 +6,13 @@ import java.util.Scanner;
  * @author Илья Богачев
  * @since 28.01.2018
  */
-public class ConsoleShow implements Show {
-    Computer computer;
-    Player player;
-    Field field;
+public class ConsoleShow implements Show {  
 
     /**
      * метод спрашивает имя пользователя, и выводит его в качестве имени нового игрока
      *
      * @return name
      */
-
     public String askUserName() {
         String name = "";
         System.out.println("Hello, my dear friend!");
