@@ -68,10 +68,8 @@ public class Player extends Strategy implements ShootingShips {
      * @return shoots - массив с двумя значениями координат X и Y
      */
     public Point createShootCoordinate() {
-        Point shoots = new Point();
         Random random = new Random();
-        shoots.setX(random.nextInt(10));
-        shoots.setY(random.nextInt(10));
+        Point shoots = new Point(random.nextInt(10), random.nextInt(10));
         return shoots;
     }
 
