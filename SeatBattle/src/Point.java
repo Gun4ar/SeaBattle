@@ -2,10 +2,15 @@
  * Класс Точка реализует координаты выстрела игроков
  *
  * @author Илья Богачев
- * @since 25.01.2018
+ * @since 05.02.2018
  */
 public class Point {
     private int x;
+    
+    public Point(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
 
     public int getX() {
         return x;
