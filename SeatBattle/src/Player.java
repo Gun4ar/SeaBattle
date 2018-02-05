@@ -5,37 +5,39 @@ import java.util.Random;
  * Класс Игрок
  *
  * @author Илья Богачев
- * @since 23.01.2018
+ * @since 05.02.2018
  */
-public class Player implements ShootingShips {
-    Show show;
+public class Player extends Strategy implements ShootingShips {
+    ConsoleShow consoleShow;
+    Strategy strategy;
     private String name;
+    public boolean isShipAlive;
 
-    public Field getPlayerField() {//временно для теста
-        return playerField;
+    public Field getField() {//временно для теста
+        return field;
     }
 
-    public Field getPlayerCheckField() {//временно для теста
-        return playerCheckField;
+    public Field getCheckField() {//временно для теста
+        return checkField;
     }
 
     /**
      * поле игрока
      */
-    private Field playerField;
+    private Field field =new Field(10, 10);
     /**
      * поле игрока для проверки выстрелов
      */
-    private Field playerCheckField;
+    private Field checkField;
 
-    public List<Ship> getPlayerNavy() {
-        return playerNavy;
+    public List<Ship> getNavy() {
+        return navy;
     }
 
     /**
      * флот игрока
      */
-    private List<Ship> playerNavy;
+    private List<Ship> navy;
 
     public Player() {
         this.name = name;
@@ -49,15 +51,15 @@ public class Player implements ShootingShips {
      * создает новое игровое поля, и поле проверки для игрока, создает флот и размещает его на игровом поле, и выводит его на экран
      */
     public void putShips() {
-        show = new Show();
+        consoleShow = new ConsoleShow();
         NavyFactory navyFactory = new NavyFactory();
-        playerNavy = navyFactory.createNavy();
-        playerField = new Field(10, 10);
-        playerField.initBattleField();
-        playerField.setBattleField(playerNavy);
-        show.drawField(playerField);
-        playerCheckField = new Field(10, 10);
-        playerCheckField.initBattleField();
+        navy = navyFactory.createNavy();
+        field = new Field(10, 10);
+        field.initBattleField();
+        field.setBattleField(navy);
+        consoleShow.drawField(field);
+        checkField = new Field(10, 10);
+        checkField.initBattleField();
     }
 
     /**
@@ -65,11 +67,9 @@ public class Player implements ShootingShips {
      *
      * @return shoots - массив с двумя значениями координат X и Y
      */
-    public int[] createShootCoordinate() {
-        int[] shoots = new int[2];
+    public Point createShootCoordinate() {
         Random random = new Random();
-        shoots[0] = random.nextInt(10);
-        shoots[1] = random.nextInt(10);
+        Point shoots = new Point(random.nextInt(10), random.nextInt(10));
         return shoots;
     }
 
@@ -77,11 +77,11 @@ public class Player implements ShootingShips {
      * метод стрельбы игрока, автоматический режим генерации значений координат выстрела, временный
      */
     @Override
-    public int[] shootShips() {
+    public Point shootShips() {
         while (true) {
-            int shoots[] = createShootCoordinate();
+            Point shoots = createShootCoordinate();
             /**проверяем, что коорданаты выстрела не совпадают с предыдущими координатами и с уже потопленными кораблями противника*/
-            if (playerCheckField.checkRandomShoots(shoots)) {
+            if (checkField.checkRandomShoots(shoots)) {
                 return shoots;
             }
         }
@@ -96,13 +96,15 @@ public class Player implements ShootingShips {
      * метод проверки координта выстрела противника, вернет true , если только переданные координаты попали по кораблю игрока
      * и установит значение ячейки игрового поля в соответсвии с предыдущим ее значеним (DEADSHIP или MISSED)
      */
-    public boolean checkShootCoordinate(int[] shootCoordinate) {
-        switch (playerField.getBattleField()[shootCoordinate[1]][shootCoordinate[0]]) {
+    public boolean checkShootCoordinate(Point shootCoordinate) {
+        switch (field.getBattleField()[shootCoordinate.getY()][shootCoordinate.getX()]) {
             case ALIVESHIP:
-                playerField.getBattleField()[shootCoordinate[1]][shootCoordinate[0]] = Field.FieldCells.DEADSHIP;
+                field.getBattleField()[shootCoordinate.getY()][shootCoordinate.getX()] = Field.FieldCells.DEADSHIP;
+                /**отмечаем пораженную ячейку корабля*/
+                killShipCell(shootCoordinate);
                 return true;
             case EMPTY:
-                playerField.getBattleField()[shootCoordinate[1]][shootCoordinate[0]] = Field.FieldCells.MISSED;
+                field.getBattleField()[shootCoordinate.getY()][shootCoordinate.getX()] = Field.FieldCells.MISSED;
                 return false;
             case DEADSHIP:
                 return false;
@@ -114,20 +116,25 @@ public class Player implements ShootingShips {
     }
 
     /**
-     * если был промах, то необходимо отметить на поле playerCheckField координату промаха
+     * если был промах, то необходимо отметить на поле checkField координату промаха
      */
-    public void missed(int[] playerShoots) {
-        playerCheckField.getBattleField()[playerShoots[1]][playerShoots[0]] = Field.FieldCells.MISSED;
+    public void missed(Point playerShoots) {
+        checkField.getBattleField()[playerShoots.getY()][playerShoots.getX()] = Field.FieldCells.MISSED;
     }
 
-    public void killShips(int[] computerShoots) {
+    /**отмечает пораженную противником ячейку корабля*/
+    private void killShipCell(Point point) {
         /**ищем корабль в который попал противник и присваиваем ячейки корабля значение DEAD*/
-        for (int i = 0; i < playerNavy.size(); i++) {//пробегаем по массиву кораблей
-            for (int j = 0; j < playerNavy.get(i).getShipCells().size(); j++) { //пробегаем по массиву палуб конкретноего корабля
+        for (int i = 0; i < navy.size(); i++) {//пробегаем по массиву кораблей
+            for (int j = 0; j < navy.get(i).getShipCells().size(); j++) { //пробегаем по массиву палуб конкретноего корабля
                 /**находим ячейку корабля по указанным координатам*/
-                if (playerNavy.get(i).getShipCells().get(j).getCoordinateY() == computerShoots[1] && playerNavy.get(i).getShipCells().get(j).getCoordinateX() == computerShoots[0]) {
+                if (navy.get(i).getShipCells().get(j).getCoordinateY() == point.getY() && navy.get(i).getShipCells().get(j).getCoordinateX() == point.getX()) {
                     /**устанавливаем значение этой ячейки DEAD*/
-                    playerNavy.get(i).getShipCells().get(j).setState(ShipCell.State.DEAD);
+                    navy.get(i).getShipCells().get(j).setState(ShipCell.State.DEAD);
+                    /**если все ячейки корабля имеют значение DEAD, то корабль считается потоплен и принимает это значение*/
+                    if (navy.get(i).getShipCells().get(j).getState()== ShipCell.State.DEAD){
+                        navy.get(i).setShipState(Ship.ShipState.DEAD);
+                    }
                     break;
                 }
             }
@@ -138,22 +145,41 @@ public class Player implements ShootingShips {
      * метод возвращает true, если весь флот игрока потоплен
      */
     public boolean isLooseNavy() {
-        for (int i = 0; i < getPlayerNavy().size(); i++) {
-            for (int j = 0; j < getPlayerNavy().get(i).getShipCells().size(); j++) {
-                if (getPlayerNavy().get(i).getShipCells().get(j).getState() == ShipCell.State.DEAD) {
+        for (int i = 0; i < getNavy().size(); i++) {
+            if (getNavy().get(i).getShipState() == Ship.ShipState.DEAD) {
                     continue;
                 } else {
                     return false;
                 }
             }
-        }
         return true;
     }
 
     /**
      * отмечаем потопленный корабль на проверочном поле
      */
-    public void playerHit(int[] playerShoots) {
-        playerCheckField.getBattleField()[playerShoots[1]][playerShoots[0]] = Field.FieldCells.DEADSHIP;
+    public void playerHit(Point playerShoots) {
+        checkField.getBattleField()[playerShoots.getY()][playerShoots.getX()] = Field.FieldCells.DEADSHIP;
     }
+
+    /**проверяет, жив ли корабль в который попал противник или потоплен*/
+    public boolean isShipAlive(Point point) {
+        /**ищем корабль по переданным координатам*/
+        for (int i = 0; i < navy.size(); i++) {//пробегаем по массиву кораблей
+            for (int j = 0; j < navy.get(i).getShipCells().size(); j++) { //пробегаем по массиву палуб конкретноего корабля
+                /**находим ячейку корабля по указанным координатам*/
+                if (navy.get(i).getShipCells().get(j).getCoordinateY() == point.getY() && navy.get(i).getShipCells().get(j).getCoordinateX() == point.getX()) {
+                    /**проверяем, есть ли еще не потопленные ячейки этого корабля*/
+                    if (navy.get(i).getShipCells().get(j).getState() == ShipCell.State.ALIVE) {
+                        return true;
+                    }
+                }
+            }
+        }return false;
+    }
+    /**метод сражения игрока, реализуется через GUI*/
+    public boolean fight(){
+        return false;
+    }
+
 }

@@ -2,7 +2,7 @@
  * Класс палуб (ячеек) корабля
  *
  * @author Илья Богачев
- * @since 22.01.2018
+ * @since 28.01.2018
  */
 public class ShipCell {
 
