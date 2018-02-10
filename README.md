@@ -1,1 +1,2 @@
-# SeaBattle U+1F6A2
+# SeaBattle
+U+1F6A2
