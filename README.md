@@ -1,2 +1,1 @@
-# SeaBattle
-&#128674;
+# SeaBattle &#128674;
