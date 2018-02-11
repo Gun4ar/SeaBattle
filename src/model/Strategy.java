@@ -12,8 +12,7 @@ import java.util.ArrayList;
  * @since 10.02.2018
  */
 public class Strategy {
-    Player player;
-    Computer computer;
+
     private ConsoleShow consoleShow;
 
     ArrayList<Point> points;
@@ -33,8 +32,9 @@ public class Strategy {
      * метод который должен будет возвращать значение координат клетки поля, на которую указал player в GUI
      *
      * @return point
+     *
      */
-    public Point fight() {
+    public Point fight(Player player) {
         //на данный момент не реализован
         return player.shootShips();
     }
@@ -43,11 +43,7 @@ public class Strategy {
      * метод поиска комьютером кораблей противника
      * возвращает координату выстрела, сгененированную случайно
      */
-    public Point findShip() {
-        /**
-         * если координаты выстрела совпадают с координатами корабля игрока, то метод вернет true и отметит на поле игрока эту ячейку как потопленную палубу
-         * если комьютер промахнулся то венет false и отметит ячейку MISSED
-         */
+    public Point findShip(Computer computer) {
 
         return computer.shootShips();
 //       if (player.checkShootCoordinate(computerShoots = computer.shootShips())) {
@@ -70,7 +66,7 @@ public class Strategy {
      * @param point координаты предыдущего выстрела
      * @return point координтаы попытки нового выстрела
      */
-    public Point killWoundedShip(Point point, Strategy.countTry countTry) {
+    public Point killWoundedShip(Point point, Strategy.countTry countTry, Computer computer) {
         /**величина приращения координаты X*/
         int i = 1;
         /**величина приращения координаты Y*/
@@ -116,9 +112,4 @@ public class Strategy {
         }
         return point;
     }
-
-
 }
-
-
-

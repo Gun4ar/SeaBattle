@@ -6,7 +6,7 @@ import java.util.List;
  * Класс Игровое поле
  *
  * @author Илья Богачев
- * @since 08.02.2018
+ * @since 11.02.2018
  */
 public class Field {
     /**
