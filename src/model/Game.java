@@ -17,7 +17,6 @@ public class Game {
     Player currentPlayer;
     Player currentEnemy;
     Result result = new Result();
-    private int countTry = 0;
     ConsoleShow consoleShow;
     GuiShow guiShow;
     Player player1;
