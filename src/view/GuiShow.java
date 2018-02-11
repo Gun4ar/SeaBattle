@@ -1,23 +1,25 @@
 package view;
 
-import model.Field;
-import model.ShootingShips;
-
+import controller.PlayerController;
+import model.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+
+
 /**
  * Класс GUI
  *
  * @author Богачев Илья
- * @since 29.01.2018
+ * @since 11.02.2018
  */
 public class GuiShow extends JFrame implements Show {
+    public static final int SIZE =10;
     JFrame jFrame =this;
     /**показать окно игры*/
-    public void showWindow(){
+    public void showWindow(Player player){
         setTitle("Sea Battle");
         setSize(1000, 500);
         setLocationRelativeTo(null);
@@ -55,12 +57,45 @@ public class GuiShow extends JFrame implements Show {
         setLayout(new BorderLayout());
 
 
-        JPanel jPanel = new JPanel();
+        JPanel PlayerField = new JPanel();
 
-        jPanel.setLayout(new GridLayout(10, 10));
+        PlayerField.setLayout(new GridLayout(10, 10));
+
+        char letter = 'A';
+        int number=1;
+
+        JPanel numbers = new JPanel();
+        numbers.setLayout(new GridLayout(1, 10));
 
 
+        for (int i = 0; i < 10; i++) {
+            numbers.add(new JLabel(String.valueOf(number++)));
 
+        }
+        jFrame.add(numbers);
+
+        JButton [] [] buttons = new JButton[SIZE][SIZE];
+
+        for (int i = 0; i <SIZE ; i++) {
+            PlayerField.add(new JLabel(String.valueOf(letter++)));
+            for (int j = 0; j < SIZE; j++) {
+                JButton jButton = new JButton("");
+                buttons [i][j] =  jButton;
+                int finalJ = j;
+                int finalI = i;
+                jButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        String buttenText = e.getActionCommand();
+                        System.out.printf("Button, %s, x: %d, y: %d%n", buttenText, finalJ, finalI);
+                        PlayerController.doShoot(new model.Point(finalI, finalJ));
+                    }
+                });
+
+                PlayerField.add(jButton);
+            }
+        }
+        jFrame.add(PlayerField);
         setVisible(true);
     }
 
@@ -83,6 +118,7 @@ public class GuiShow extends JFrame implements Show {
 
     @Override
     public void drawField(Field field) {
+
 
     }
 
