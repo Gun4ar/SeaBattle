@@ -5,10 +5,10 @@ package model;
  * Класс Комьютер
  *
  * @author Илья Богачев
- * @since 08.02.2018
+ * @since 11.02.2018
  */
 public class Computer extends Player implements ShootingShips {
-    Strategy strategy;
+    Strategy strategy=new Strategy();
     private Point computerShoots;
 
     public Point getComputerShoots() {
@@ -63,7 +63,7 @@ public class Computer extends Player implements ShootingShips {
      * метод возвращает координаты выстрела, сгенерированные выбранной стратегией комьютера или игрока
      */
     public Point makeTurn() {
-        return strategy.findShip();
+       return strategy.findShip(Game.getInstance().computer);
     }
 
 

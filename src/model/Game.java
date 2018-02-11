@@ -11,7 +11,7 @@ import java.lang.reflect.InvocationTargetException;
  * Класс Игра
  *
  * @author Илья Богачев
- * @since 10.02.2018
+ * @since 11.02.2018
  */
 public class Game {
     Player currentPlayer;
@@ -57,7 +57,7 @@ public class Game {
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
-        // guiShow.showWindow();//необходимо дорабатывать
+         //guiShow.showWindow(player1);//необходимо дорабатывать
 
 
         consoleShow = new ConsoleShow();
@@ -109,10 +109,11 @@ public class Game {
      */
     private void gameModeComputer() {
         while (!(findWinner())) {
-            point = currentPlayer.makeTurn();
             currentPlayer = choose(player1, computer);
+            point = currentPlayer.makeTurn();
             result.sendMessage(point, currentPlayer, currentEnemy);
-
+            consoleShow.drawField(currentEnemy.getField());
+            consoleShow.drawField(currentPlayer.getCheckField());
         }
     }
 
@@ -139,13 +140,20 @@ public class Game {
      */
     public Player choose(Player currentPlayer, Player currentEnemy) {
         /**если результат выстрела был успешен, то текущий игрок остается текущим игроком*/
-        if (result.isSuccessfully(currentPlayer.getPoint(), currentEnemy)) {
+        /**первый выбор должен быть по умолчанию, до того, как какой либо игрок сделал свой ход*/
+        if (currentPlayer.getPoint() == null) {
             this.currentEnemy = currentEnemy;
             return this.currentPlayer = currentPlayer;
-            /**иначе, игрок и комьютер меняются*/
+
         } else {
-            this.currentEnemy = currentPlayer;
-            return this.currentPlayer = currentEnemy;
+            if (result.isSuccessfully(currentPlayer.getPoint(), currentEnemy)) {
+                this.currentEnemy = currentEnemy;
+                return this.currentPlayer = currentPlayer;
+                /**иначе, игрок и комьютер меняются*/
+            } else {
+                this.currentEnemy = currentPlayer;
+                return this.currentPlayer = currentEnemy;
+            }
         }
     }
 }

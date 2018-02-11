@@ -11,12 +11,15 @@ import java.util.Random;
  * Класс Игрок
  *
  * @author Илья Богачев
- * @since 08.02.2018
+ * @since 11.02.2018
  */
 public class Player extends Strategy implements ShootingShips {
     Strategy strategy = new Strategy();
     protected ConsoleShow consoleShow = new ConsoleShow();
     protected String name;
+
+
+
     private Point point;
     /**
      * поле игрока
@@ -32,10 +35,9 @@ public class Player extends Strategy implements ShootingShips {
      */
     protected List<Ship> navy;
 
-    public Player() {
-        this.name = name;
+    public Field getCheckField() {
+        return checkField;
     }
-
     public Point getPoint() {
         return point;
     }
@@ -192,7 +194,7 @@ public class Player extends Strategy implements ShootingShips {
      * метод возвращает координаты выстрела, сгенерированные выбранной стратегией комьютера или игрока
      */
     public Point makeTurn() {
-        return strategy.fight();
+        return strategy.fight(Game.getInstance().player1);
     }
 
 }
