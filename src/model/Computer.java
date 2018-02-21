@@ -1,14 +1,13 @@
 package model;
 
-
 /**
  * Класс Комьютер
  *
  * @author Илья Богачев
- * @since 11.02.2018
+ * @since 21.02.2018
  */
 public class Computer extends Player implements ShootingShips {
-    Strategy strategy=new Strategy();
+    Strategy strategy = new Strategy();
     private Point computerShoots;
 
     public Point getComputerShoots() {
@@ -63,50 +62,10 @@ public class Computer extends Player implements ShootingShips {
      * метод возвращает координаты выстрела, сгенерированные выбранной стратегией комьютера или игрока
      */
     public Point makeTurn() {
-       return strategy.findShip(Game.getInstance().computer);
+        /**если флаг включен, значит было попадание по противнику*/
+        if (Game.getInstance().isFlag()) {
+            return strategy.killWoundedShip(Game.getInstance().getComputerPoint(), Game.getInstance().getComputerTryKill(), this);
+        } else
+            return strategy.findShip(Game.getInstance().computer);
     }
-
-
-    /**
-     * метод стрельбы, который объединяет все стратегии комьютера
-     */
-//    public boolean fight() {
-//        /**проверяем, если был подбит корабль противника, то значение countTry будет больше 0*/
-//        if (countTry > 0) {
-//            /**проверем, если жив корабль, то запускаем стратегию добивания корабля, если нет, то запускаем метод поиска нового корабля*/
-//            if (player.isShipAlive(computerShoots)) {
-//                /**проверяем, попал ли комьютер по кораблю по новым координатам*/
-//                if (player.checkShootCoordinate(killWoundedShip(computerShoots, countTry))) {
-//                    return true;
-//                } else {
-//                    countTry++;
-//                    return false;
-//                }
-//                /**если корабль потоплен то обнуляем countTry*/
-//            } else {
-//                countTry = 0;
-//            }
-//        } else {
-//            /**если countTry ==0, то запускаем стратегию поиска корабля противника*/
-//            if (findShip()) {
-//                /**проверем, если жив корабль, то запускаем стратегию добивания корабля, если нет, то запускаем метод поиска нового корабля*/
-//                if (player.isShipAlive(computerShoots)) {
-//                    /**проверяем, попал ли комьюетер по кораблю по новым координатам*/
-//                    if (player.checkShootCoordinate(killWoundedShip(computerShoots, countTry))) {
-//                        return true;
-//                        /**если не попал, то увеличиваем счетчик countTry, и метод возвращает false*/
-//                    } else {
-//                        countTry++;
-//                        return false;
-//                    }
-//                } else {
-//                    countTry = 0;
-//                }
-//                /**если комьюетер промахнулся, то метод вернет false*/
-//            } else {
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
 }
