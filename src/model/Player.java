@@ -1,7 +1,6 @@
 package model;
 
 
-import controller.Result;
 import view.ConsoleShow;
 
 import java.util.List;
@@ -11,15 +10,12 @@ import java.util.Random;
  * Класс Игрок
  *
  * @author Илья Богачев
- * @since 11.02.2018
+ * @since 17.02.2018
  */
 public class Player extends Strategy implements ShootingShips {
     Strategy strategy = new Strategy();
     protected ConsoleShow consoleShow = new ConsoleShow();
     protected String name;
-
-
-
     private Point point;
     /**
      * поле игрока
@@ -38,6 +34,7 @@ public class Player extends Strategy implements ShootingShips {
     public Field getCheckField() {
         return checkField;
     }
+
     public Point getPoint() {
         return point;
     }
@@ -117,84 +114,88 @@ public class Player extends Strategy implements ShootingShips {
                     /**устанавливаем значение этой ячейки DEAD*/
                     navy.get(i).getShipCells().get(j).setState(ShipCell.State.DEAD);
                     /**если все ячейки корабля имеют значение DEAD, то корабль считается потоплен и принимает это значение*/
-                    if (navy.get(i).getShipCells().get(j).getState() == ShipCell.State.DEAD) {
-                        navy.get(i).setShipState(Ship.ShipState.DEAD);
+                    for (int k = 0; k < navy.get(i).getShipCells().size(); k++) {
+                        if (navy.get(i).getShipCells().get(k).getState() == ShipCell.State.ALIVE) {
+                            return;
+                        } else {
+                            continue;
+                        }
+                    }navy.get(i).setShipState(Ship.ShipState.DEAD);
+                }
+            }
+        }
+    }
+
+
+        /**
+         * метод возвращает true, если весь флот игрока потоплен
+         */
+        public boolean isLooseNavy () {
+            for (int i = 0; i < getNavy().size(); i++) {
+                if (getNavy().get(i).getShipState() == Ship.ShipState.DEAD) {
+                } else {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /**
+         * отмечаем потопленный корабль на проверочном поле
+         */
+        public void playerHit (Point playerShoots){
+            checkField.getBattleField()[playerShoots.getY()][playerShoots.getX()] = Field.FieldCells.DEADSHIP;
+        }
+
+        /**
+         * проверяет, жив ли корабль в который попал противник или потоплен
+         */
+        public boolean isShipAlive (Point point){
+            /**ищем корабль по переданным координатам*/
+            for (int i = 0; i < navy.size(); i++) {//пробегаем по массиву кораблей
+                for (int j = 0; j < navy.get(i).getShipCells().size(); j++) { //пробегаем по массиву палуб конкретноего корабля
+                    /**находим ячейку корабля по указанным координатам*/
+                    if (navy.get(i).getShipCells().get(j).getCoordinateY() == point.getY() && navy.get(i).getShipCells().get(j).getCoordinateX() == point.getX()) {
+                        /**проверяем, есть ли еще не потопленные ячейки этого корабля*/
+                        if (navy.get(i).getShipState() == Ship.ShipState.ALIVE) {
+                            return true;
+                        }
                     }
-                    break;
                 }
             }
+            return false;
         }
-    }
 
-    /**
-     * метод возвращает true, если весь флот игрока потоплен
-     */
-    public boolean isLooseNavy() {
-        for (int i = 0; i < getNavy().size(); i++) {
-            if (getNavy().get(i).getShipState() == Ship.ShipState.DEAD) {
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * отмечаем потопленный корабль на проверочном поле
-     */
-    public void playerHit(Point playerShoots) {
-        checkField.getBattleField()[playerShoots.getY()][playerShoots.getX()] = Field.FieldCells.DEADSHIP;
-    }
-
-    /**
-     * проверяет, жив ли корабль в который попал противник или потоплен
-     */
-    public boolean isShipAlive(Point point) {
-        /**ищем корабль по переданным координатам*/
-        for (int i = 0; i < navy.size(); i++) {//пробегаем по массиву кораблей
-            for (int j = 0; j < navy.get(i).getShipCells().size(); j++) { //пробегаем по массиву палуб конкретноего корабля
-                /**находим ячейку корабля по указанным координатам*/
-                if (navy.get(i).getShipCells().get(j).getCoordinateY() == point.getY() && navy.get(i).getShipCells().get(j).getCoordinateX() == point.getX()) {
-                    /**проверяем, есть ли еще не потопленные ячейки этого корабля*/
-                    if (navy.get(i).getShipCells().get(j).getState() == ShipCell.State.ALIVE) {
-                        return true;
+        /**
+         * передача значений результата выстрела
+         */
+        public Result.ShootResult getMessage (Point point){
+            switch (field.getBattleField()[point.getY()][point.getX()]) {
+                case ALIVESHIP:
+                    field.getBattleField()[point.getY()][point.getX()] = Field.FieldCells.DEADSHIP;
+                    /**отмечаем пораженную ячейку корабля*/
+                    killShipCell(point);
+                    /**проверяем, не потопил ли противник корабль, если да, вернет значение KILL*/
+                    if (!(isShipAlive(point))) {
+                        System.out.println("KILL in getMessage");
+                        return Result.ShootResult.KILL;
                     }
-                }
+                    return Result.ShootResult.WOUND;
+                case EMPTY:
+                    field.getBattleField()[point.getY()][point.getX()] = Field.FieldCells.MISSED;
+                    return Result.ShootResult.MISS;
+                case DEADSHIP:
+                    return Result.ShootResult.WOUND;
+                case MISSED:
+                    return Result.ShootResult.MISS;
             }
+            return Result.ShootResult.UNKNOWN;
         }
-        return false;
-    }
 
-    /**
-     * передача значений результата выстрела
-     */
-    public Result.ShootResult getMessage(Point point) {
-        switch (field.getBattleField()[point.getY()][point.getX()]) {
-            case ALIVESHIP:
-                field.getBattleField()[point.getY()][point.getX()] = Field.FieldCells.DEADSHIP;
-                /**отмечаем пораженную ячейку корабля*/
-                killShipCell(point);
-                /**проверяем, не потопил ли противник корабль, если да, вернет значение KILL*/
-                if (isShipAlive(point)) {
-                    return Result.ShootResult.KILL;
-                }
-                return Result.ShootResult.WOUND;
-            case EMPTY:
-                field.getBattleField()[point.getY()][point.getX()] = Field.FieldCells.MISSED;
-                return Result.ShootResult.MISS;
-            case DEADSHIP:
-                return Result.ShootResult.MISS;
-            case MISSED:
-                return Result.ShootResult.MISS;
+        /**
+         * метод возвращает координаты выстрела, сгенерированные выбранной стратегией комьютера или игрока
+         */
+        public Point makeTurn () {
+            return strategy.fight(this);
         }
-        return Result.ShootResult.UNKNOWN;
     }
-
-    /**
-     * метод возвращает координаты выстрела, сгенерированные выбранной стратегией комьютера или игрока
-     */
-    public Point makeTurn() {
-        return strategy.fight(Game.getInstance().player1);
-    }
-
-}
