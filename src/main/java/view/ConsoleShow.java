@@ -1,9 +1,7 @@
 package main.java.view;
 
-import model.Field;
-import model.ShootingShips;
-
-
+import main.java.model.Field;
+import main.java.model.ShootingShips;
 import java.util.Scanner;
 
 /**
@@ -37,7 +35,7 @@ public class ConsoleShow implements Show {
     /**
      * метод для определения режима игры- игрок -комьютер или игрок-игрок
      */
-    public void chooseGameMode() {//изменил пока работаем с GUI
+    public int chooseGameMode() {//изменил пока работаем с GUI
         int number;
         System.out.println("Choose game mode: enter 1 to play with computer; enter 2 to play with Player");
         Scanner scanner = new Scanner(System.in);
@@ -55,7 +53,7 @@ public class ConsoleShow implements Show {
             String temp = scanner.nextLine();
             System.out.println("Please enter number 1 or 2");
         }
-        //return number;
+        return number;
     }
 
     /**

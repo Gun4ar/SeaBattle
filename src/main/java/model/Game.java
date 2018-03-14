@@ -1,14 +1,18 @@
 package main.java.model;
 
-import controller.GameController;
-import view.ConsoleShow;
-import view.GameWindow;
+import main.java.controller.GameController;
+import main.java.view.ConsoleShow;
+import main.java.view.GameWindow;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 
 /**
  * Класс Игра
  *
  * @author Илья Богачев
- * @since 21.02.2018
+ * @since 14.03.2018
  */
 public class Game {
     Player currentPlayer;
@@ -20,7 +24,7 @@ public class Game {
     Computer computer;
     GameWindow gameWindow = new GameWindow();
     private gameMode mode;
-    Object key = new Object();
+    static Object key = new Object();
 
 
     private static Game ourInstance = new Game();
@@ -36,15 +40,19 @@ public class Game {
      */
     private boolean flag;
     private Point computerPoint;
+
     public boolean isFlag() {
         return flag;
     }
+
     public Point getComputerPoint() {
         return computerPoint;
     }
+
     public Point getPoint() {
         return point;
     }
+
     public static Game getInstance() {
         return ourInstance;
     }
@@ -63,11 +71,11 @@ public class Game {
     /**
      * создание игроков и игровых полей для них
      */
-    public void init() /**/{
+    public void init() /**/ {
         consoleShow = new ConsoleShow();
         /**получить значение выбора игрока в GUI интерфейсе*/
-        switch (GameController.getInstance().getMode()){
-            case PlayerVsPlayer:
+        switch (GameController.getInstance().getMode()) {
+            case 1:
                 player1 = new Player();
                 player1.setName(consoleShow.askUserName());
                 player1.putShips();
@@ -76,7 +84,7 @@ public class Game {
                 computer.putShips();
                 currentEnemy = computer;
                 break;
-            case PlayerVsComputer:
+            case 2:
                 player1 = new Player();
                 player1.setName(consoleShow.askUserName());
                 player1.putShips();
@@ -85,26 +93,6 @@ public class Game {
                 player2.putShips();
                 break;
         }
-
-//        if (consoleShow.chooseGameMode() == 1) {
-//            player1 = new Player();
-//            player1.setName(consoleShow.askUserName());
-//            player1.putShips();
-//            currentPlayer = player1;
-//            computer = new Computer();
-//            computer.putShips();
-//            currentEnemy = computer;
-//            mode = Game.gameMode.PlayerVsComputer;
-//        } else {
-//            /**режим игрок против игрока*/
-//            player1 = new Player();
-//            player1.setName(consoleShow.askUserName());
-//            player1.putShips();
-//            player2 = new Player();
-//            player2.setName(consoleShow.askUserName());
-//            player2.putShips();
-//            mode = Game.gameMode.PlayerVsPlayer;
-//        }
     }
 
     /**
@@ -131,22 +119,30 @@ public class Game {
     /**
      * метод игры против комьютера
      */
-    private void gameModeComputer() {//TODO дописать синхронизацию
+    private void gameModeComputer()  {//TODO дописать синхронизацию через Future and Callable
         while (!(findWinner())) {
-            /*Thread playerThread = new Thread(player1);
-            playerThread.start();
-            Thread computerThread = new Thread(computer);
-            computerThread.start();    */
-                currentPlayer = choose(point, player1, computer);
-                point = currentPlayer.makeTurn();
-                /**передать результат выстрела игрока по противнику в котроллер*/
-                GameController.getInstance().setModelResult(sendMessage(point, currentPlayer, currentEnemy));
-                sendMessage(point, currentPlayer, currentEnemy);
-                /**отобразить результат выстрела*/
-                gameWindow.showShotResult(sendMessage(point, currentPlayer, currentEnemy));
-                consoleShow.drawField(currentEnemy.getField());
-                consoleShow.drawField(currentPlayer.getField());
-                consoleShow.drawField(currentPlayer.getCheckField());
+            //помогите отредактировать этот метод, я не понимаю где что нужно объявить и вызвать, чтобы получить поинт из метода call()
+            Callable<Point> playerCallable = new Player();
+            Callable<Point> computerCallable = new Computer();
+            FutureTask playerFutureTask = new FutureTask(playerCallable);
+            FutureTask computerFutureTask = new FutureTask(computerCallable);
+            new Thread(playerFutureTask).start();
+            new Thread(computerFutureTask).start();
+            currentPlayer = choose(point, player1, computer);
+            //не совсем ясно как быть с этим методом и как взять от фичи Поинт
+            point = currentPlayer.makeTurn();
+            /**передать результат выстрела игрока по противнику в котроллер*/
+            GameController.getInstance().setModelResult(sendMessage(point, currentPlayer, currentEnemy));
+            sendMessage(point, currentPlayer, currentEnemy);
+            /**отобразить результат выстрела игрока*/
+            gameWindow.showShotResult(sendMessage(point, currentPlayer, currentEnemy));
+
+            if (currentPlayer instanceof Player) {
+                GameController.getComputerShot(currentPlayer.getField());
+            }
+            consoleShow.drawField(currentEnemy.getField());
+            consoleShow.drawField(currentPlayer.getField());
+            consoleShow.drawField(currentPlayer.getCheckField());
 
         }
     }
@@ -221,11 +217,11 @@ public class Game {
                 /**Если текущий игрок комьютер, то увеличиваем попытки добить корабль*/
                 if (currentPlayer instanceof Computer) {
                     if (flag) {
-                          computerTryKill++;
-                          if (computerTryKill >=4){
-                              computerTryKill=0;
-                              break;
-                          }
+                        computerTryKill++;
+                        if (computerTryKill >= 4) {
+                            computerTryKill = 0;
+                            break;
+                        }
                     }
                 }
                 return Result.ShootResult.MISS;

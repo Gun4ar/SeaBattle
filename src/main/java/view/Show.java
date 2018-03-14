@@ -1,7 +1,7 @@
 package main.java.view;
 
-import model.Field;
-import model.ShootingShips;
+import main.java.model.Field;
+import main.java.model.ShootingShips;
 
 /**
  * Интерфейс выводящий информацию на экран
@@ -13,7 +13,7 @@ public interface Show  {
     /**запросить имя игрока*/
     String askUserName();
     /**выбрать режим игры*/
-    void chooseGameMode();
+    int chooseGameMode();
     /**вывести победителя*/
     void showWinner(ShootingShips shootingShips);
     /**показать игровое поле*/

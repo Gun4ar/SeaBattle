@@ -1,13 +1,14 @@
 package main.java.view;
 
-import com.sun.deploy.panel.JavaPanel;
-import controller.GameController;
-import model.*;
-
+import jdk.nashorn.internal.codegen.CompilerConstants;
+import main.java.controller.GameController;
+import main.java.model.*;
+import main.java.model.Point;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -15,18 +16,19 @@ import java.util.concurrent.ExecutionException;
  * Класс GUI
  *
  * @author Богачев Илья
- * @since 11.02.2018
+ * @since 14.03.2018
  */
-public class GameWindow extends JFrame implements Show {
-    JButton[][] buttons;
+public class GameWindow extends JFrame implements Show, Callable {
+    JButton[][] playerCheckFieldCells;
+    JButton[][] playerBattlefieldCells;
     public static final int SIZE = 10;
 
     /**
      * показать окно игры
      */
-    public void init() {
+    public void refreshWindow() {
         setTitle("Sea Battle");
-        setSize(1000, 500);
+        setSize(800, 1000);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         JMenuBar jMenuBar = new JMenuBar();
@@ -58,21 +60,20 @@ public class GameWindow extends JFrame implements Show {
                 int n = JOptionPane.showOptionDialog(restartWindows, "Do you want Restart this Game?", "Restart Game", JOptionPane.WARNING_MESSAGE, JOptionPane.YES_NO_CANCEL_OPTION, null, option, option[2]);
             }
         });
+
         setJMenuBar(jMenuBar);
         setLayout(new BorderLayout());
-        JPanel playerField = new JPanel();
-        playerField.setPreferredSize(new Dimension(400, 400));
-        playerField.setLayout(new GridLayout(10, 10));
+        JPanel playerCheckField = new JPanel();
+        playerCheckField.setLayout(new GridLayout(10, 10));
+        JPanel playerBattleField = new JPanel();
+        playerBattleField.setLayout(new GridLayout(10, 10));
         JPanel structure =new JPanel();
         structure.setLayout(new GridLayout(2, 1));
-
-
 
         char letter = 'A';
         int number = 1;
 
         JPanel numbers = new JPanel();
-        numbers.setPreferredSize(new Dimension(20, 1000));
 
         numbers.setLayout(new GridLayout(1, 10));
 
@@ -81,14 +82,13 @@ public class GameWindow extends JFrame implements Show {
 
         }
 
-
-        buttons = new JButton[SIZE][SIZE];
-
+        /**установить проверочное поле игрока*/
+        playerCheckFieldCells = new JButton[SIZE][SIZE];
         for (int i = 0; i < SIZE; i++) {
-            playerField.add(new JLabel(String.valueOf(letter++)));
+            playerCheckField.add(new JLabel(String.valueOf(letter++)));
             for (int j = 0; j < SIZE; j++) {
                 JButton BattleFieldCell = new JButton("");
-                buttons[i][j] = BattleFieldCell;
+                playerCheckFieldCells[i][j] = BattleFieldCell;
                 int finalX = j;
                 int finalY = i;
                 BattleFieldCell.addActionListener(new ActionListener() {
@@ -96,16 +96,39 @@ public class GameWindow extends JFrame implements Show {
                     public void actionPerformed(ActionEvent e) {
                         String buttonText = e.getActionCommand();
                         System.out.printf("Button, %s, x: %d, y: %d%n", buttonText, finalX, finalY);
-                        GameController.getInstance().getGUIShoot(new model.Point(finalX, finalY));
+                        CompletableFuture<Void> future = CompletableFuture
+                                .runAsync(() ->GameController.getGUIShoot(new Point(finalX, finalY)))
+                                .thenAccept(System.out::println);
+                        try{
+                            future.get();
+                        }catch (InterruptedException | ExecutionException e1){
+                            e1.printStackTrace();
+                        }
                     }
                 });
-
-                playerField.add(BattleFieldCell);
+                playerCheckField.add(BattleFieldCell);
             }
         }
+        structure.add(playerCheckField);
 
-        structure.add(numbers);
-        structure.add(playerField);//TODO add to jPanel with two colum
+
+        /**создаем игровое поле игрока*/
+        char letters ='A';
+        playerBattlefieldCells = new JButton[SIZE][SIZE];
+        for (int i = 0; i < SIZE; i++) {
+            playerBattleField.add(new JLabel(String.valueOf(letters++)));
+            for (int j = 0; j < SIZE; j++) {
+                JButton BattleFieldCell = new JButton("");
+                playerCheckFieldCells[i][j] = BattleFieldCell;
+                int finalX = j;
+                int finalY = i;
+
+                playerBattleField.add(BattleFieldCell);
+            }
+        }
+        /**отрисовать поле игрока после выстрела комьютера*/
+        structure.add(drawPlayerField(GameController.getPlayerBattleField()));
+        structure.add(playerBattleField);
         add(structure);
         setVisible(true);
 
@@ -116,9 +139,9 @@ public class GameWindow extends JFrame implements Show {
     public String askUserName() {
         return null;
     }
-
+    /**Выводит окно выбора режима игры*/
     @Override
-    public void chooseGameMode() {
+    public int chooseGameMode() {
         JFrame gameMode = new JFrame();
         gameMode.setTitle("Game Mode");
         gameMode.setSize(400, 200);
@@ -133,7 +156,7 @@ public class GameWindow extends JFrame implements Show {
         vsComputer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                GameController.getInstance().setGameMode (Game.gameMode.PlayerVsComputer);
+                GameController.getInstance().setGameMode (1);
                 System.out.println("VSComputer");
                 gameMode.setVisible(false);
             }
@@ -142,14 +165,17 @@ public class GameWindow extends JFrame implements Show {
         vsPlayer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                GameController.getInstance().setGameMode (Game.gameMode.PlayerVsPlayer);
+                GameController.getInstance().setGameMode (2);
                 System.out.println("VSPlayer");
                 gameMode.setVisible(false);
             }
         });
 
         gameMode.setVisible(true);
+
+        return GameController.getMode();
     }
+
 
 
     @Override
@@ -160,7 +186,35 @@ public class GameWindow extends JFrame implements Show {
     @Override
     public void drawField(Field field) {
 
+    }
 
+    /**отрисовать поле игрока*/
+    public JPanel drawPlayerField(Field field) {
+        JButton battleFieldCell;
+        JPanel jPanel =new JPanel();
+        jPanel.setLayout(new GridLayout(SIZE, SIZE));
+        char letters = 'A';
+        JButton[][] buttons = new JButton[GameController.getPlayerBattleField().getBattleField().length][GameController.getPlayerBattleField().getBattleField().length];
+        for (int i = 0; i < field.getBattleField().length; i++) {
+            jPanel.add(new JLabel(String.valueOf(letters++)));
+            for (int j = 0; j < field.getBattleField().length; j++) {
+                switch (field.getBattleField()[i][j]) {
+                    case EMPTY:
+                        battleFieldCell = new JButton("");
+                        break;
+                    case ALIVESHIP:
+                        battleFieldCell = new JButton("#");
+                        break;
+                    case DEADSHIP:
+                        battleFieldCell = new JButton("X");
+                        break;
+                    case MISSED:
+                        battleFieldCell = new JButton("*");
+                        break;
+                }
+            }
+        }
+        return jPanel;
     }
 
     @Override
@@ -176,16 +230,16 @@ public class GameWindow extends JFrame implements Show {
             for (int j = 0; j < SIZE; j++) {
                 switch (shootResult) {
                     case WOUND:
-                        buttons[GameController.getPoint().getY()][GameController.getPoint().getX()].setText("X");
+                        playerCheckFieldCells[GameController.getPoint().getY()][GameController.getPoint().getX()].setText("X");
                         break;
                     case KILL:
-                        buttons[GameController.getPoint().getY()][GameController.getPoint().getX()].setText("X");
+                        playerCheckFieldCells[GameController.getPoint().getY()][GameController.getPoint().getX()].setText("X");
                         break;
                     case MISS:
-                        buttons[GameController.getPoint().getY()][GameController.getPoint().getX()].setText("*");
+                        playerCheckFieldCells[GameController.getPoint().getY()][GameController.getPoint().getX()].setText("*");
                         break;
                     case UNKNOWN:
-                        buttons[GameController.getPoint().getY()][GameController.getPoint().getX()].setText("");
+                        playerCheckFieldCells[GameController.getPoint().getY()][GameController.getPoint().getX()].setText("");
                         break;
                 }
             }
@@ -199,5 +253,9 @@ public class GameWindow extends JFrame implements Show {
 
     }
 
-
+    /**вернет значение выбора режима игры*/
+    @Override
+    public Integer call() throws Exception {
+        return chooseGameMode();
+    }
 }

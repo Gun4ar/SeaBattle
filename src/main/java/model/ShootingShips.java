@@ -1,6 +1,6 @@
 package main.java.model;
 
-import model.Point;
+
 
 /**
  * Интерфейс Стреляющих по кораблям

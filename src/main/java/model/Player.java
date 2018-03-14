@@ -1,10 +1,13 @@
 package main.java.model;
 
 
-import view.ConsoleShow;
+import main.java.model.factory.NavyFactory;
+import main.java.model.strategy.Strategy;
+import main.java.view.ConsoleShow;
 
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Callable;
 
 /**
  * Класс Игрок
@@ -12,7 +15,7 @@ import java.util.Random;
  * @author Илья Богачев
  * @since 17.02.2018
  */
-public class Player extends Strategy implements ShootingShips, Runnable {
+public class Player extends Strategy implements ShootingShips, Callable {
     Strategy strategy = new Strategy();
     protected ConsoleShow consoleShow = new ConsoleShow();
     protected String name;
@@ -121,87 +124,87 @@ public class Player extends Strategy implements ShootingShips, Runnable {
                         } else {
                             continue;
                         }
-                    }navy.get(i).setShipState(Ship.ShipState.DEAD);
+                    }
+                    navy.get(i).setShipState(Ship.ShipState.DEAD);
                 }
             }
         }
     }
 
-
-        /**
-         * метод возвращает true, если весь флот игрока потоплен
-         */
-        public boolean isLooseNavy () {
-            for (int i = 0; i < getNavy().size(); i++) {
-                if (getNavy().get(i).getShipState() == Ship.ShipState.DEAD) {
-                } else {
-                    return false;
-                }
+    /**
+     * метод возвращает true, если весь флот игрока потоплен
+     */
+    public boolean isLooseNavy() {
+        for (int i = 0; i < getNavy().size(); i++) {
+            if (getNavy().get(i).getShipState() == Ship.ShipState.DEAD) {
+            } else {
+                return false;
             }
-            return true;
         }
+        return true;
+    }
 
-        /**
-         * отмечаем потопленный корабль на проверочном поле
-         */
-        public void playerHit (Point playerShoots){
-            checkField.getBattleField()[playerShoots.getY()][playerShoots.getX()] = Field.FieldCells.DEADSHIP;
-        }
+    /**
+     * отмечаем потопленный корабль на проверочном поле
+     */
+    public void playerHit(Point playerShoots) {
+        checkField.getBattleField()[playerShoots.getY()][playerShoots.getX()] = Field.FieldCells.DEADSHIP;
+    }
 
-        /**
-         * проверяет, жив ли корабль в который попал противник или потоплен
-         */
-        public boolean isShipAlive (Point point){
-            /**ищем корабль по переданным координатам*/
-            for (int i = 0; i < navy.size(); i++) {//пробегаем по массиву кораблей
-                for (int j = 0; j < navy.get(i).getShipCells().size(); j++) { //пробегаем по массиву палуб конкретноего корабля
-                    /**находим ячейку корабля по указанным координатам*/
-                    if (navy.get(i).getShipCells().get(j).getCoordinateY() == point.getY() && navy.get(i).getShipCells().get(j).getCoordinateX() == point.getX()) {
-                        /**проверяем, есть ли еще не потопленные ячейки этого корабля*/
-                        if (navy.get(i).getShipState() == Ship.ShipState.ALIVE) {
-                            return true;
-                        }
+    /**
+     * проверяет, жив ли корабль в который попал противник или потоплен
+     */
+    public boolean isShipAlive(Point point) {
+        /**ищем корабль по переданным координатам*/
+        for (int i = 0; i < navy.size(); i++) {//пробегаем по массиву кораблей
+            for (int j = 0; j < navy.get(i).getShipCells().size(); j++) { //пробегаем по массиву палуб конкретноего корабля
+                /**находим ячейку корабля по указанным координатам*/
+                if (navy.get(i).getShipCells().get(j).getCoordinateY() == point.getY() && navy.get(i).getShipCells().get(j).getCoordinateX() == point.getX()) {
+                    /**проверяем, есть ли еще не потопленные ячейки этого корабля*/
+                    if (navy.get(i).getShipState() == Ship.ShipState.ALIVE) {
+                        return true;
                     }
                 }
             }
-            return false;
         }
+        return false;
+    }
 
-        /**
-         * передача значений результата выстрела
-         */
-        public Result.ShootResult getMessage (Point point){
-            switch (field.getBattleField()[point.getY()][point.getX()]) {
-                case ALIVESHIP:
-                    field.getBattleField()[point.getY()][point.getX()] = Field.FieldCells.DEADSHIP;
-                    /**отмечаем пораженную ячейку корабля*/
-                    killShipCell(point);
-                    /**проверяем, не потопил ли противник корабль, если да, вернет значение KILL*/
-                    if (!(isShipAlive(point))) {
-                        System.out.println("KILL in getMessage");
-                        return Result.ShootResult.KILL;
-                    }
-                    return Result.ShootResult.WOUND;
-                case EMPTY:
-                    field.getBattleField()[point.getY()][point.getX()] = Field.FieldCells.MISSED;
-                    return Result.ShootResult.MISS;
-                case DEADSHIP:
-                    return Result.ShootResult.WOUND;
-                case MISSED:
-                    return Result.ShootResult.MISS;
-            }
-            return Result.ShootResult.UNKNOWN;
+    /**
+     * передача значений результата выстрела
+     */
+    public Result.ShootResult getMessage(Point point) {
+        switch (field.getBattleField()[point.getY()][point.getX()]) {
+            case ALIVESHIP:
+                field.getBattleField()[point.getY()][point.getX()] = Field.FieldCells.DEADSHIP;
+                /**отмечаем пораженную ячейку корабля*/
+                killShipCell(point);
+                /**проверяем, не потопил ли противник корабль, если да, вернет значение KILL*/
+                if (!(isShipAlive(point))) {
+                    return Result.ShootResult.KILL;
+                }
+                return Result.ShootResult.WOUND;
+            case EMPTY:
+                field.getBattleField()[point.getY()][point.getX()] = Field.FieldCells.MISSED;
+                return Result.ShootResult.MISS;
+            case DEADSHIP:
+                return Result.ShootResult.WOUND;
+            case MISSED:
+                return Result.ShootResult.MISS;
         }
+        return Result.ShootResult.UNKNOWN;
+    }
 
-        /**
-         * метод возвращает координаты выстрела, сгенерированные выбранной стратегией комьютера или игрока
-         */
-       synchronized public Point makeTurn () {
-            return strategy.fight(this);
-        }
+    /**
+     * метод возвращает координаты выстрела, сгенерированные выбранной стратегией комьютера или игрока
+     */
+    synchronized public Point makeTurn() {
+        return strategy.fight(this);
+    }
 
+    /**метод call вернет координтаы точки в зависимости от выбранной стратегии*/
     @Override
-    public void run() {
-            makeTurn();
+    public Point call() {
+       return makeTurn();
     }
 }
